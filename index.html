@@ -68,13 +68,11 @@
       border-bottom: 1px solid var(--border);
     }
 
-    /* SVG LOGO inline */
     .nav-logo {
       display: flex; align-items: center; gap: 10px;
       text-decoration: none; flex-shrink: 0;
     }
     .nav-logo svg { height: 32px; width: auto; }
-    /* hide text part on very small screens, show icon only */
     .logo-text-group { display: none; }
     @media(min-width: 360px) { .logo-text-group { display: block; } }
 
@@ -147,7 +145,7 @@
 
     /* ── HERO ── */
     #hero {
-      padding-top: 86px; /* status bar + nav height */
+      padding-top: 86px;
       background: var(--light);
       min-height: 100svh;
       display: flex; flex-direction: column;
@@ -165,7 +163,6 @@
       .hero-image-wrap { aspect-ratio: 4/3; max-height: none; }
     }
 
-    /* animated tech illustration inside hero image */
     .hero-illustration {
       position: absolute; inset: 0;
       display: flex; align-items: center; justify-content: center;
@@ -203,7 +200,6 @@
     .hi-line:nth-child(7) { width: 120px; height: 1px; top: 30%; left: 15%; transform: rotate(25deg); }
     .hi-line:nth-child(8) { width: 80px; height: 1px; top: 60%; left: 60%; transform: rotate(-15deg); }
 
-    /* big SDD monogram watermark in hero */
     .hi-watermark {
       position: absolute; left: 5%; top: 50%; transform: translateY(-50%);
       font-family: var(--font); font-size: clamp(5rem, 18vw, 14rem);
@@ -220,7 +216,6 @@
       letter-spacing: .06em; text-transform: uppercase;
     }
 
-    /* hero text block */
     .hero-text {
       padding: 2rem 1.25rem 3rem;
       background: var(--white);
@@ -239,9 +234,7 @@
       color: var(--text);
       opacity: 0; animation: fadeUp .8s .25s forwards;
     }
-    #hero h1 strong {
-      font-weight: 600; color: var(--navy);
-    }
+    #hero h1 strong { font-weight: 600; color: var(--navy); }
     .hero-sub {
       margin-top: 1rem;
       font-size: .95rem; color: var(--muted); font-weight: 300;
@@ -280,9 +273,7 @@
       border-top: 1px solid var(--border); padding-top: 2rem;
       opacity: 0; animation: fadeUp .8s .7s forwards;
     }
-    .hs-num {
-      font-size: 1.6rem; font-weight: 600; color: var(--text); line-height: 1; letter-spacing: -.03em;
-    }
+    .hs-num { font-size: 1.6rem; font-weight: 600; color: var(--text); line-height: 1; letter-spacing: -.03em; }
     .hs-label { font-size: .72rem; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; margin-top: .2rem; }
 
     @keyframes fadeUp {
@@ -311,9 +302,7 @@
     #services { background: var(--light); }
     .services-header { margin-bottom: 2.5rem; }
 
-    .service-list {
-      display: flex; flex-direction: column;
-    }
+    .service-list { display: flex; flex-direction: column; }
     .service-item {
       display: flex; align-items: flex-start; gap: 1rem;
       padding: 1.4rem 0; border-bottom: 1px solid var(--border);
@@ -393,9 +382,7 @@
     .why-item p { font-size: .82rem; color: var(--muted); line-height: 1.6; }
 
     /* ── CTA STRIP ── */
-    .cta-strip {
-      background: var(--navy2); padding: 3.5rem 1.25rem; text-align: center;
-    }
+    .cta-strip { background: var(--navy2); padding: 3.5rem 1.25rem; text-align: center; }
     @media(min-width:900px) { .cta-strip { padding: 5rem 2.5rem; } }
     .cta-strip h2 {
       font-size: clamp(1.6rem, 4vw, 2.6rem); font-weight: 600;
@@ -413,9 +400,7 @@
 
     /* ── CONTACT ── */
     #contact { background: var(--white); }
-    .contact-grid {
-      display: flex; flex-direction: column; gap: 3rem;
-    }
+    .contact-grid { display: flex; flex-direction: column; gap: 3rem; }
     @media(min-width:900px) {
       .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: start; }
     }
@@ -743,7 +728,6 @@
   </footer>
 
   <script>
-    // Mobile menu toggle
     const ham = document.getElementById('ham');
     const mobileMenu = document.getElementById('mobileMenu');
     ham.addEventListener('click', () => {
@@ -751,7 +735,6 @@
       mobileMenu.classList.toggle('open');
     });
 
-    // Close mobile menu on click
     document.querySelectorAll('.menu-link').forEach(link => {
       link.addEventListener('click', () => {
         ham.classList.remove('open');
@@ -759,7 +742,6 @@
       });
     });
 
-    // Reveal on scroll
     const reveals = document.querySelectorAll('.reveal');
     const revealOnScroll = () => {
       const windowHeight = window.innerHeight;
@@ -773,7 +755,6 @@
     window.addEventListener('scroll', revealOnScroll);
     window.addEventListener('load', revealOnScroll);
 
-    // Business hours logic (9:00 - 17:00)
     function updateStatus() {
       const now = new Date();
       const hrs = now.getHours();
@@ -795,7 +776,6 @@
     updateStatus();
     setInterval(updateStatus, 60000);
 
-    // Mailto handler
     document.getElementById('send-btn').addEventListener('click', function() {
       const name    = document.getElementById('f-name').value.trim();
       const email   = document.getElementById('f-email').value.trim();
