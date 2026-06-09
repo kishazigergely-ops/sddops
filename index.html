@@ -1,779 +1,824 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hu">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sovereign Digital Defense</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --black: #0a0a0a;
-    --white: #f5f2ee;
-    --gold: #c9a84c;
-    --gold-dim: #8a6f30;
-    --silver: #9ea8b0;
-    --panel: #111214;
-    --border: rgba(201,168,76,0.18);
-    --border-soft: rgba(255,255,255,0.07);
-    --red: #c0392b;
-  }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>SDD Informatika – Prémium IT Megoldások</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy:   #3d4f63;
+      --navy2:  #2e3d4f;
+      --gray:   #6b7a8d;
+      --light:  #f5f6f8;
+      --white:  #ffffff;
+      --border: #e2e5ea;
+      --text:   #1a1f2e;
+      --muted:  #6b7a8d;
+      --font:   'Inter', sans-serif;
+    }
 
-  html { scroll-behavior: smooth; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--white);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 15px;
+      line-height: 1.7;
+      overflow-x: hidden;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-  body {
-    background: var(--black);
-    color: var(--white);
-    font-family: 'DM Mono', monospace;
-    font-size: 13px;
-    line-height: 1.7;
-    overflow-x: hidden;
-  }
+    /* ── STATUS BAR ── */
+    .status-bar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 300;
+      display: flex; align-items: center; justify-content: center; gap: .55rem;
+      padding: .38rem 1.25rem;
+      font-size: .72rem; font-weight: 500; letter-spacing: .04em;
+      transition: background .4s, color .4s;
+    }
+    .status-bar.open {
+      background: #dcf5e4; color: #1a6630;
+    }
+    .status-bar.closed {
+      background: #fde8e8; color: #8b1a1a;
+    }
+    .status-dot {
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+      animation: statusPulse 2s ease-in-out infinite;
+    }
+    .status-bar.open  .status-dot { background: #22c55e; }
+    .status-bar.closed .status-dot { background: #ef4444; }
+    @keyframes statusPulse {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50% { opacity: .65; transform: scale(1.3); }
+    }
 
-  /* ── NOISE OVERLAY ── */
-  body::before {
-    content: '';
-    position: fixed; inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
-    pointer-events: none; z-index: 9999; opacity: .4;
-  }
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 28px; left: 0; right: 0; z-index: 200;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: .85rem 1.25rem;
+      background: rgba(255,255,255,.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
 
-  /* ── NAVBAR ── */
-  nav {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 20px 48px;
-    background: linear-gradient(to bottom, rgba(10,10,10,0.97) 0%, transparent 100%);
-    backdrop-filter: blur(4px);
-  }
+    /* SVG LOGO inline */
+    .nav-logo {
+      display: flex; align-items: center; gap: 10px;
+      text-decoration: none; flex-shrink: 0;
+    }
+    .nav-logo svg { height: 32px; width: auto; }
+    /* hide text part on very small screens, show icon only */
+    .logo-text-group { display: none; }
+    @media(min-width: 360px) { .logo-text-group { display: block; } }
 
-  .logo {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 18px; font-weight: 300; letter-spacing: 0.18em;
-    color: var(--gold); text-decoration: none;
-  }
-  .logo span { color: var(--white); }
+    .hamburger {
+      display: flex; flex-direction: column; gap: 5px;
+      background: none; border: none; cursor: pointer; padding: 6px;
+    }
+    .hamburger span {
+      display: block; width: 22px; height: 1.5px;
+      background: var(--navy);
+      transition: transform .3s, opacity .3s;
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
 
-  .nav-right { display: flex; align-items: center; gap: 32px; }
+    /* mobile overlay menu */
+    .mobile-menu {
+      position: fixed; inset: 0; z-index: 190;
+      background: var(--white);
+      display: flex; flex-direction: column; align-items: flex-start; justify-content: center;
+      padding: 2rem 1.75rem;
+      gap: 0;
+      opacity: 0; pointer-events: none;
+      transition: opacity .3s;
+    }
+    .mobile-menu.open { opacity: 1; pointer-events: all; }
+    .mobile-menu a {
+      font-size: 1.9rem; font-weight: 600; letter-spacing: -.02em;
+      color: var(--text); text-decoration: none;
+      padding: .65rem 0;
+      border-bottom: 1px solid var(--border);
+      width: 100%;
+      transition: color .2s;
+    }
+    .mobile-menu a:last-child { border-bottom: none; }
+    .mobile-menu a:hover { color: var(--navy); }
+    .mobile-menu .menu-cta {
+      margin-top: 1.5rem;
+      display: inline-block;
+      padding: .85rem 2rem;
+      background: var(--navy); color: var(--white);
+      border-radius: 4px; font-size: .9rem; font-weight: 600;
+      letter-spacing: .04em; border: none; width: auto;
+    }
 
-  .nav-links { display: flex; gap: 28px; }
-  .nav-links a {
-    color: var(--silver); text-decoration: none;
-    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
-    transition: color .2s;
-  }
-  .nav-links a:hover { color: var(--gold); }
+    /* desktop nav */
+    .nav-links-desktop { display: none; }
+    @media(min-width: 900px) {
+      .hamburger { display: none; }
+      .nav-links-desktop {
+        display: flex; gap: 2rem; list-style: none; align-items: center;
+      }
+      .nav-links-desktop a {
+        color: var(--muted); text-decoration: none;
+        font-size: .82rem; font-weight: 500; letter-spacing: .04em;
+        transition: color .2s;
+      }
+      .nav-links-desktop a:hover { color: var(--text); }
+      .nav-links-desktop .nav-cta-btn {
+        padding: .55rem 1.4rem;
+        background: var(--navy); color: var(--white);
+        border-radius: 4px; font-size: .8rem; font-weight: 600;
+        letter-spacing: .04em;
+        transition: background .2s;
+      }
+      .nav-links-desktop .nav-cta-btn:hover { background: var(--navy2); color: var(--white); }
+      nav { padding: .9rem 2.5rem; top: 28px; }
+    }
 
-  /* Language toggle */
-  .lang-toggle {
-    display: flex; align-items: center; gap: 0;
-    border: 1px solid var(--border); border-radius: 2px; overflow: hidden;
-  }
-  .lang-btn {
-    background: none; border: none; cursor: pointer;
-    padding: 6px 14px; font-family: 'DM Mono', monospace;
-    font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
-    color: var(--silver); transition: background .2s, color .2s;
-  }
-  .lang-btn.active { background: var(--gold); color: var(--black); font-weight: 600; }
-  .lang-btn:not(.active):hover { color: var(--white); background: rgba(255,255,255,0.04); }
+    /* ── HERO ── */
+    #hero {
+      padding-top: 86px; /* status bar + nav height */
+      background: var(--light);
+      min-height: 100svh;
+      display: flex; flex-direction: column;
+    }
 
-  /* ── HERO ── */
-  .hero {
-    min-height: 100vh;
-    display: flex; flex-direction: column; justify-content: center;
-    padding: 120px 48px 80px;
-    position: relative; overflow: hidden;
-  }
+    .hero-image-wrap {
+      width: 100%; overflow: hidden;
+      background: linear-gradient(160deg, #2e3d4f 0%, #4a6080 60%, #6b8aaa 100%);
+      position: relative;
+      aspect-ratio: 16/9;
+      max-height: 52vw;
+      flex-shrink: 0;
+    }
+    @media(max-width:480px) {
+      .hero-image-wrap { aspect-ratio: 4/3; max-height: none; }
+    }
 
-  .hero-grid {
-    position: absolute; inset: 0; pointer-events: none;
-    background-image:
-      linear-gradient(rgba(201,168,76,0.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(201,168,76,0.04) 1px, transparent 1px);
-    background-size: 60px 60px;
-    mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 30%, transparent 100%);
-  }
+    /* animated tech illustration inside hero image */
+    .hero-illustration {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    .hi-grid {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.07) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+    .hi-circle {
+      position: absolute; border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.15);
+    }
+    .hi-circle:nth-child(1) { width: 300px; height: 300px; top: 50%; left: 55%; transform: translate(-50%,-50%); animation: spin 30s linear infinite; }
+    .hi-circle:nth-child(2) { width: 180px; height: 180px; top: 50%; left: 55%; transform: translate(-50%,-50%); animation: spin 20s linear infinite reverse; border-color: rgba(255,255,255,.25); }
+    .hi-circle:nth-child(3) { width: 80px; height: 80px; top: 50%; left: 55%; transform: translate(-50%,-50%); background: rgba(255,255,255,.08); border: none; }
+    @keyframes spin { from{transform:translate(-50%,-50%) rotate(0)} to{transform:translate(-50%,-50%) rotate(360deg)} }
 
-  .hero-tag {
-    font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase;
-    color: var(--gold); margin-bottom: 28px;
-    display: flex; align-items: center; gap: 16px;
-  }
-  .hero-tag::before {
-    content: ''; display: block; width: 32px; height: 1px; background: var(--gold);
-  }
+    .hi-dot {
+      position: absolute; width: 6px; height: 6px; border-radius: 50%;
+      background: rgba(255,255,255,.5);
+    }
+    .hi-dot:nth-child(4)  { top: 25%; left: 20%; animation: pulse2 3s ease-in-out infinite; }
+    .hi-dot:nth-child(5)  { top: 65%; left: 75%; animation: pulse2 4s ease-in-out .5s infinite; }
+    .hi-dot:nth-child(6)  { top: 40%; left: 30%; animation: pulse2 3.5s ease-in-out 1s infinite; }
+    @keyframes pulse2 { 0%,100%{opacity:.3;transform:scale(1)} 50%{opacity:1;transform:scale(2)} }
 
-  .hero h1 {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(48px, 7vw, 96px);
-    font-weight: 300; line-height: 1.05;
-    letter-spacing: -0.01em;
-    max-width: 900px;
-    margin-bottom: 32px;
-  }
-  .hero h1 em { font-style: italic; color: var(--gold); }
+    .hi-line {
+      position: absolute; background: rgba(255,255,255,.1);
+      transform-origin: left center;
+    }
+    .hi-line:nth-child(7) { width: 120px; height: 1px; top: 30%; left: 15%; transform: rotate(25deg); }
+    .hi-line:nth-child(8) { width: 80px; height: 1px; top: 60%; left: 60%; transform: rotate(-15deg); }
 
-  .hero-sub {
-    max-width: 520px;
-    color: var(--silver);
-    font-size: 12px; line-height: 1.9;
-    margin-bottom: 48px;
-  }
+    /* big SDD monogram watermark in hero */
+    .hi-watermark {
+      position: absolute; left: 5%; top: 50%; transform: translateY(-50%);
+      font-family: var(--font); font-size: clamp(5rem, 18vw, 14rem);
+      font-weight: 600; color: rgba(255,255,255,.06);
+      letter-spacing: -.05em; line-height: 1; user-select: none;
+    }
 
-  .hero-ctas { display: flex; gap: 16px; flex-wrap: wrap; }
+    .hero-badge {
+      position: absolute; bottom: 1.25rem; left: 1.25rem;
+      background: rgba(255,255,255,.12); backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 6px; padding: .55rem 1rem;
+      font-size: .72rem; font-weight: 500; color: rgba(255,255,255,.85);
+      letter-spacing: .06em; text-transform: uppercase;
+    }
 
-  .btn-primary {
-    background: var(--gold); color: var(--black);
-    border: none; cursor: pointer;
-    padding: 14px 32px;
-    font-family: 'DM Mono', monospace;
-    font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
-    font-weight: 600; text-decoration: none;
-    transition: background .2s, transform .15s;
-    display: inline-block;
-  }
-  .btn-primary:hover { background: #e0bc5c; transform: translateY(-1px); }
+    /* hero text block */
+    .hero-text {
+      padding: 2rem 1.25rem 3rem;
+      background: var(--white);
+      flex: 1;
+    }
+    @media(min-width:900px) { .hero-text { padding: 3.5rem 2.5rem 4rem; max-width: 680px; } }
 
-  .btn-secondary {
-    background: transparent; color: var(--white);
-    border: 1px solid var(--border-soft); cursor: pointer;
-    padding: 14px 32px;
-    font-family: 'DM Mono', monospace;
-    font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
-    text-decoration: none; transition: border-color .2s, color .2s;
-    display: inline-block;
-  }
-  .btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
+    .hero-eyebrow {
+      font-size: .72rem; letter-spacing: .15em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 1rem;
+      opacity: 0; animation: fadeUp .7s .1s forwards;
+    }
+    #hero h1 {
+      font-size: clamp(2rem, 8vw, 3.8rem);
+      font-weight: 600; line-height: 1.12; letter-spacing: -.03em;
+      color: var(--text);
+      opacity: 0; animation: fadeUp .8s .25s forwards;
+    }
+    #hero h1 strong {
+      font-weight: 600; color: var(--navy);
+    }
+    .hero-sub {
+      margin-top: 1rem;
+      font-size: .95rem; color: var(--muted); font-weight: 300;
+      max-width: 480px; line-height: 1.8;
+      opacity: 0; animation: fadeUp .8s .4s forwards;
+    }
+    .hero-actions {
+      margin-top: 1.75rem; display: flex; flex-direction: column; gap: .75rem;
+      opacity: 0; animation: fadeUp .8s .55s forwards;
+    }
+    @media(min-width:480px) { .hero-actions { flex-direction: row; } }
 
-  .hero-stats {
-    position: absolute; right: 48px; bottom: 80px;
-    display: flex; flex-direction: column; gap: 32px; text-align: right;
-  }
-  .stat-num {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 36px; font-weight: 300; color: var(--gold); line-height: 1;
-  }
-  .stat-label { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--silver); }
+    .btn-dark {
+      display: inline-block; padding: .9rem 2rem;
+      background: var(--text); color: var(--white);
+      border: none; border-radius: 4px;
+      font-family: var(--font); font-size: .85rem; font-weight: 600;
+      letter-spacing: .03em; cursor: pointer; text-decoration: none;
+      text-align: center;
+      transition: background .2s, transform .15s;
+    }
+    .btn-dark:hover { background: var(--navy2); transform: translateY(-1px); }
 
-  /* ── DIVIDER ── */
-  .divider {
-    border: none; border-top: 1px solid var(--border-soft); margin: 0 48px;
-  }
+    .btn-outline-dark {
+      display: inline-block; padding: .9rem 2rem;
+      background: transparent; color: var(--text);
+      border: 1px solid var(--border); border-radius: 4px;
+      font-family: var(--font); font-size: .85rem; font-weight: 500;
+      cursor: pointer; text-decoration: none; text-align: center;
+      transition: border-color .2s, transform .15s;
+    }
+    .btn-outline-dark:hover { border-color: var(--navy); color: var(--navy); transform: translateY(-1px); }
 
-  /* ── SEGMENT STRIP ── */
-  .segment-strip {
-    display: grid; grid-template-columns: 1fr 1fr;
-    margin: 0; border-top: 1px solid var(--border-soft);
-    border-bottom: 1px solid var(--border-soft);
-  }
-  .segment {
-    padding: 64px 48px;
-    border-right: 1px solid var(--border-soft);
-    cursor: pointer; transition: background .25s;
-    position: relative; overflow: hidden;
-  }
-  .segment:last-child { border-right: none; }
-  .segment::after {
-    content: ''; position: absolute; bottom: 0; left: 0;
-    width: 0; height: 2px; background: var(--gold);
-    transition: width .35s ease;
-  }
-  .segment:hover::after { width: 100%; }
-  .segment:hover { background: rgba(201,168,76,0.03); }
+    .hero-stats {
+      margin-top: 2.5rem; display: flex; gap: 2rem; flex-wrap: wrap;
+      border-top: 1px solid var(--border); padding-top: 2rem;
+      opacity: 0; animation: fadeUp .8s .7s forwards;
+    }
+    .hs-num {
+      font-size: 1.6rem; font-weight: 600; color: var(--text); line-height: 1; letter-spacing: -.03em;
+    }
+    .hs-label { font-size: .72rem; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; margin-top: .2rem; }
 
-  .seg-icon {
-    font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase;
-    color: var(--gold); margin-bottom: 16px;
-    display: flex; align-items: center; gap: 10px;
-  }
-  .seg-icon::before { content: '◆'; font-size: 7px; }
-  .segment h3 {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 28px; font-weight: 300; margin-bottom: 12px;
-  }
-  .segment p { color: var(--silver); font-size: 12px; line-height: 1.8; }
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(16px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
 
-  /* ── SECTION ── */
-  section { padding: 100px 48px; }
-  section.alt { background: var(--panel); }
+    /* ── SECTIONS ── */
+    section { padding: 4.5rem 1.25rem; }
+    @media(min-width:900px) { section { padding: 7rem 2.5rem; } }
 
-  .section-label {
-    font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase;
-    color: var(--gold); margin-bottom: 20px;
-    display: flex; align-items: center; gap: 14px;
-  }
-  .section-label::before { content: ''; width: 24px; height: 1px; background: var(--gold); flex-shrink: 0; }
+    .section-tag {
+      font-size: .7rem; letter-spacing: .16em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: .75rem;
+    }
+    .section-title {
+      font-size: clamp(1.8rem, 5vw, 3rem);
+      font-weight: 600; line-height: 1.1; letter-spacing: -.03em;
+    }
+    .section-sub {
+      margin-top: .85rem; color: var(--muted);
+      font-size: .9rem; font-weight: 300; max-width: 480px;
+    }
 
-  .section-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(32px, 4vw, 52px); font-weight: 300;
-    line-height: 1.15; margin-bottom: 48px;
-    max-width: 640px;
-  }
-  .section-title em { font-style: italic; color: var(--gold); }
+    /* ── SERVICES ── */
+    #services { background: var(--light); }
+    .services-header { margin-bottom: 2.5rem; }
 
-  /* ── SERVICE CARDS ── */
-  .cards-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1px; background: var(--border-soft);
-    border: 1px solid var(--border-soft);
-  }
+    .service-list {
+      display: flex; flex-direction: column;
+    }
+    .service-item {
+      display: flex; align-items: flex-start; gap: 1rem;
+      padding: 1.4rem 0; border-bottom: 1px solid var(--border);
+      cursor: default; transition: padding-left .2s;
+    }
+    .service-item:first-child { border-top: 1px solid var(--border); }
+    .service-item:hover { padding-left: .35rem; }
 
-  .card {
-    background: var(--black); padding: 40px 32px;
-    transition: background .25s;
-    position: relative; overflow: hidden;
-  }
-  .alt .card { background: var(--panel); }
-  .card:hover { background: rgba(201,168,76,0.04); }
-  .card::before {
-    content: attr(data-num);
-    position: absolute; top: 20px; right: 24px;
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 64px; font-weight: 300;
-    color: rgba(201,168,76,0.07); line-height: 1;
-    pointer-events: none;
-  }
+    .si-num {
+      font-size: .75rem; font-weight: 600; color: var(--muted);
+      letter-spacing: .06em; min-width: 26px; padding-top: .1rem;
+    }
+    .si-body { flex: 1; }
+    .si-body h3 {
+      font-size: 1.05rem; font-weight: 600; letter-spacing: -.01em;
+      margin-bottom: .25rem; color: var(--text);
+    }
+    .si-body p { font-size: .85rem; color: var(--muted); }
+    .si-tag {
+      display: inline-block; margin-top: .45rem;
+      font-size: .65rem; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--navy); background: rgba(61,79,99,.08);
+      padding: .2rem .55rem; border-radius: 20px;
+    }
+    .si-arrow { font-size: .9rem; color: var(--border); flex-shrink: 0; padding-top: .1rem; transition: color .2s; }
+    .service-item:hover .si-arrow { color: var(--navy); }
 
-  .card-tag {
-    font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
-    color: var(--gold); margin-bottom: 16px;
-  }
-  .card h4 {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 22px; font-weight: 400; margin-bottom: 12px;
-  }
-  .card p { color: var(--silver); font-size: 12px; line-height: 1.8; }
+    @media(min-width:700px) {
+      .service-list { display: grid; grid-template-columns: 1fr 1fr; }
+      .service-item { border-top: 1px solid var(--border); border-bottom: none; border-right: 1px solid var(--border); padding: 1.75rem 1.5rem 1.75rem 0; }
+      .service-item:nth-child(2n) { border-right: none; padding-left: 1.5rem; }
+      .service-item:nth-child(2n):hover { padding-left: 1.85rem; }
+      .service-item:first-child { border-top: 1px solid var(--border); }
+    }
 
-  /* ── PHILOSOPHY ── */
-  .philosophy-grid {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start;
-  }
-  .philosophy-text p {
-    color: var(--silver); font-size: 13px; line-height: 1.95; margin-bottom: 20px;
-  }
+    /* ── PROCESS ── */
+    #process { background: var(--white); }
+    .process-grid { display: flex; flex-direction: column; margin-top: 2.5rem; }
+    .process-step {
+      display: flex; gap: 1.5rem; padding: 1.75rem 0;
+      border-bottom: 1px solid var(--border); transition: padding-left .2s;
+    }
+    .process-step:last-child { border-bottom: none; }
+    .process-step:hover { padding-left: .35rem; }
+    .ps-num {
+      font-size: 2.5rem; font-weight: 600; color: var(--border);
+      line-height: 1; min-width: 48px; letter-spacing: -.04em;
+    }
+    .ps-body { flex: 1; padding-top: .2rem; }
+    .ps-body h4 { font-size: 1rem; font-weight: 600; margin-bottom: .3rem; }
+    .ps-body p { font-size: .85rem; color: var(--muted); }
 
-  .quote-block {
-    border-left: 2px solid var(--gold);
-    padding: 32px 40px;
-    background: rgba(201,168,76,0.04);
-  }
-  .quote-block blockquote {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 22px; font-weight: 300; font-style: italic;
-    line-height: 1.5; color: var(--white); margin-bottom: 20px;
-  }
-  .quote-cite { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold); }
+    @media(min-width:700px) {
+      .process-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+      .process-step { border-right: 1px solid var(--border); padding: 2rem 2rem 2rem 0; border-bottom: 1px solid var(--border); }
+      .process-step:nth-child(2n) { border-right: none; padding-left: 2rem; }
+      .process-step:nth-child(2n):hover { padding-left: 2.35rem; }
+      .process-step:last-child, .process-step:nth-last-child(2) { border-bottom: none; }
+    }
 
-  /* ── VAULT BLOCK ── */
-  .vault-block {
-    border: 1px solid var(--border);
-    padding: 64px;
-    position: relative; overflow: hidden;
-    background: linear-gradient(135deg, rgba(201,168,76,0.05) 0%, transparent 60%);
-  }
-  .vault-block::before {
-    content: '⬡'; position: absolute; right: 48px; top: 48px;
-    font-size: 120px; color: rgba(201,168,76,0.05); line-height: 1;
-  }
-  .vault-block h3 {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 36px; font-weight: 300; margin-bottom: 20px;
-  }
-  .vault-block p { color: var(--silver); max-width: 580px; margin-bottom: 32px; }
+    /* ── WHY ── */
+    #why { background: var(--light); }
+    .why-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: .75rem; margin-top: 2.5rem;
+    }
+    @media(min-width:700px) { .why-grid { grid-template-columns: repeat(3,1fr); gap: 1rem; } }
 
-  /* ── COMPLIANCE BAND ── */
-  .compliance-band {
-    display: flex; align-items: center; gap: 40px;
-    padding: 32px 48px;
-    background: rgba(192,57,43,0.06);
-    border-top: 1px solid rgba(192,57,43,0.2);
-    border-bottom: 1px solid rgba(192,57,43,0.2);
-    flex-wrap: wrap;
-  }
-  .comp-badge {
-    font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
-    color: var(--red); display: flex; align-items: center; gap: 8px;
-  }
-  .comp-badge::before { content: '●'; }
-  .comp-text { color: var(--silver); font-size: 12px; flex: 1; min-width: 200px; }
+    .why-item {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: 8px; padding: 1.5rem 1.25rem;
+      transition: box-shadow .2s, transform .2s;
+    }
+    .why-item:hover { box-shadow: 0 6px 24px rgba(0,0,0,.07); transform: translateY(-3px); }
+    .wi-icon { font-size: 1.3rem; margin-bottom: .65rem; }
+    .why-item h4 { font-size: .95rem; font-weight: 600; margin-bottom: .3rem; }
+    .why-item p { font-size: .82rem; color: var(--muted); line-height: 1.6; }
 
-  /* ── LOCAL SERVICES ── */
-  .local-list {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 24px;
-  }
-  .local-item {
-    padding: 28px 28px; border: 1px solid var(--border-soft);
-    transition: border-color .2s;
-  }
-  .local-item:hover { border-color: var(--gold); }
-  .local-item h5 {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 18px; font-weight: 400; margin-bottom: 8px;
-    display: flex; align-items: center; gap: 10px;
-  }
-  .local-item h5 .icon { color: var(--gold); font-style: normal; }
-  .local-item p { color: var(--silver); font-size: 12px; line-height: 1.7; }
+    /* ── CTA STRIP ── */
+    .cta-strip {
+      background: var(--navy2); padding: 3.5rem 1.25rem; text-align: center;
+    }
+    @media(min-width:900px) { .cta-strip { padding: 5rem 2.5rem; } }
+    .cta-strip h2 {
+      font-size: clamp(1.6rem, 4vw, 2.6rem); font-weight: 600;
+      color: var(--white); letter-spacing: -.02em; margin-bottom: .5rem;
+    }
+    .cta-strip p { color: rgba(255,255,255,.55); font-size: .9rem; margin-bottom: 2rem; }
+    .btn-white {
+      display: inline-block; padding: .9rem 2.25rem;
+      background: var(--white); color: var(--text);
+      border-radius: 4px; font-family: var(--font);
+      font-size: .85rem; font-weight: 600; letter-spacing: .03em;
+      text-decoration: none; transition: opacity .2s, transform .15s;
+    }
+    .btn-white:hover { opacity: .9; transform: translateY(-1px); }
 
-  /* ── CONTACT ── */
-  .contact-block {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;
-  }
-  .contact-info h2 {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(32px, 4vw, 52px); font-weight: 300; margin-bottom: 20px;
-  }
-  .contact-info p { color: var(--silver); margin-bottom: 32px; font-size: 12px; }
-  .contact-detail {
-    display: flex; align-items: center; gap: 14px; margin-bottom: 16px;
-    font-size: 12px; color: var(--silver);
-  }
-  .contact-detail a { color: var(--gold); text-decoration: none; }
-  .contact-detail a:hover { text-decoration: underline; }
+    /* ── CONTACT ── */
+    #contact { background: var(--white); }
+    .contact-grid {
+      display: flex; flex-direction: column; gap: 3rem;
+    }
+    @media(min-width:900px) {
+      .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: start; }
+    }
 
-  .contact-email-block {
-    border: 1px solid var(--border);
-    padding: 48px 56px;
-    background: linear-gradient(135deg, rgba(201,168,76,0.04) 0%, transparent 60%);
-    display: flex; flex-direction: column; gap: 24px;
-    justify-content: center;
-  }
-  .contact-email-block .big-email {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(20px, 2.5vw, 30px); font-weight: 300;
-    color: var(--gold); text-decoration: none; letter-spacing: 0.04em;
-    transition: color .2s;
-  }
-  .contact-email-block .big-email:hover { color: #e0bc5c; }
+    .contact-info-list { margin-top: 2rem; display: flex; flex-direction: column; gap: 1.1rem; }
+    .ci-row { display: flex; align-items: center; gap: .85rem; }
+    .ci-dot {
+      width: 38px; height: 38px; border-radius: 50%;
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .9rem; flex-shrink: 0; background: var(--light);
+    }
+    .ci-text .lbl { font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+    .ci-text .val { font-size: .9rem; font-weight: 500; margin-top: .1rem; }
 
-  /* ── FOOTER ── */
-  footer {
-    padding: 40px 48px;
-    border-top: 1px solid var(--border-soft);
-    display: flex; justify-content: space-between; align-items: center;
-    flex-wrap: wrap; gap: 16px;
-  }
-  .footer-logo {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 15px; font-weight: 300; letter-spacing: 0.15em; color: var(--gold);
-  }
-  .footer-copy { font-size: 11px; color: var(--silver); }
-  .footer-links { display: flex; gap: 24px; }
-  .footer-links a { font-size: 11px; color: var(--silver); text-decoration: none; }
-  .footer-links a:hover { color: var(--gold); }
+    .contact-form { display: flex; flex-direction: column; gap: .9rem; }
+    .cf-row { display: grid; grid-template-columns: 1fr 1fr; gap: .9rem; }
+    @media(max-width:480px) { .cf-row { grid-template-columns: 1fr; } }
 
-  /* ── ANIMATIONS ── */
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(24px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  .hero h1 { animation: fadeUp .8s ease both .1s; }
-  .hero-tag { animation: fadeUp .6s ease both; }
-  .hero-sub { animation: fadeUp .8s ease both .25s; }
-  .hero-ctas { animation: fadeUp .8s ease both .4s; }
+    .form-field { display: flex; flex-direction: column; gap: .35rem; }
+    .form-field label { font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+    .form-field input,
+    .form-field textarea,
+    .form-field select {
+      background: var(--light); border: 1px solid var(--border);
+      border-radius: 6px; padding: .85rem 1rem;
+      color: var(--text); font-family: var(--font); font-size: .9rem;
+      outline: none; transition: border-color .2s;
+      resize: none; -webkit-appearance: none; min-height: 50px;
+    }
+    .form-field input:focus,
+    .form-field textarea:focus,
+    .form-field select:focus { border-color: var(--navy); background: var(--white); }
+    .form-field textarea { min-height: 110px; }
+    .form-field select option { background: var(--white); }
 
-  /* ── RESPONSIVE ── */
-  @media (max-width: 768px) {
-    nav { padding: 16px 24px; }
-    .nav-links { display: none; }
-    .hero { padding: 100px 24px 60px; }
-    .hero-stats { display: none; }
-    .segment-strip { grid-template-columns: 1fr; }
-    .segment { border-right: none; border-bottom: 1px solid var(--border-soft); }
-    section { padding: 64px 24px; }
-    .divider { margin: 0 24px; }
-    .philosophy-grid { grid-template-columns: 1fr; gap: 40px; }
-    .contact-block { grid-template-columns: 1fr; gap: 48px; }
-    .form-row { grid-template-columns: 1fr; }
-    footer { padding: 32px 24px; flex-direction: column; text-align: center; }
-    .vault-block { padding: 40px 28px; }
-    .compliance-band { padding: 24px; }
-  }
+    /* ── FOOTER ── */
+    footer {
+      background: var(--light); border-top: 1px solid var(--border);
+      padding: 2rem 1.25rem;
+      display: flex; flex-direction: column; gap: 1rem;
+      align-items: center; text-align: center;
+    }
+    @media(min-width:700px) {
+      footer { flex-direction: row; justify-content: space-between; padding: 1.75rem 2.5rem; text-align: left; }
+    }
+    .footer-logo-wrap { display: flex; align-items: center; }
+    .footer-logo-wrap svg { height: 26px; width: auto; }
+    .footer-copy { font-size: .78rem; color: var(--muted); }
+    .footer-links { display: flex; gap: 1.5rem; }
+    .footer-links a { font-size: .78rem; color: var(--muted); text-decoration: none; transition: color .2s; }
+    .footer-links a:hover { color: var(--text); }
 
-  /* ── LANGUAGE SWITCHING ── */
-  /* Hide ALL hu elements by default (EN is active) */
-  [data-lang="hu"] { display: none !important; }
-
-  /* When HU active: hide EN, show HU with correct display type */
-  body.lang-hu [data-lang="en"] { display: none !important; }
-  body.lang-hu [data-lang="hu"] { display: block !important; }
-
-  /* Flex elements */
-  body.lang-hu .hero-tag[data-lang="hu"],
-  body.lang-hu .section-label[data-lang="hu"],
-  body.lang-hu .card-tag[data-lang="hu"],
-  body.lang-hu .comp-badge[data-lang="hu"],
-  body.lang-hu .contact-detail[data-lang="hu"],
-  body.lang-hu .hero-stats[data-lang="hu"],
-  body.lang-hu .hero-ctas[data-lang="hu"],
-  body.lang-hu .compliance-band[data-lang="hu"] { display: flex !important; }
-
-  /* Grid elements */
-  body.lang-hu .segment-strip[data-lang="hu"],
-  body.lang-hu .cards-grid[data-lang="hu"],
-  body.lang-hu .local-list[data-lang="hu"],
-  body.lang-hu .philosophy-grid[data-lang="hu"],
-  body.lang-hu .contact-block[data-lang="hu"] { display: grid !important; }
-
-</style>
+    /* ── REVEAL ── */
+    .reveal {
+      opacity: 0; transform: translateY(16px);
+      transition: opacity .65s ease, transform .65s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+  </style>
 </head>
 <body>
 
-<!-- ═══ NAVBAR ═══ -->
-<nav>
-  <a href="#" class="logo">SOVEREIGN <span>DIGITAL DEFENSE</span></a>
-  <div class="nav-right">
-    <div class="nav-links">
-      <a href="#services" data-lang="en">Services</a>
-      <a href="#services" data-lang="hu">Szolgáltatások</a>
-      <a href="#smb" data-lang="en">For SMBs</a>
-      <a href="#smb" data-lang="hu">KKV-knak</a>
-      <a href="#contact" data-lang="en">Contact</a>
-      <a href="#contact" data-lang="hu">Kapcsolat</a>
-    </div>
-    <div class="lang-toggle">
-      <button class="lang-btn active" onclick="setLang('en')">EN</button>
-      <button class="lang-btn" onclick="setLang('hu')">HU</button>
-    </div>
-  </div>
-</nav>
-
-<!-- ═══ HERO ═══ -->
-<div class="hero">
-  <div class="hero-grid"></div>
-
-  <div class="hero-tag" data-lang="en">Executive Privacy Infrastructure</div>
-  <div class="hero-tag" data-lang="hu">Digitális biztonság — mindenkinek, aki komolyan veszi</div>
-
-  <h1 data-lang="en">Privacy is the<br><em>ultimate</em> luxury.</h1>
-  <h1 data-lang="hu">Az adatbiztonság<br>nem <em>luxus</em> —<br>hanem alap.</h1>
-
-  <p class="hero-sub" data-lang="en">In an era of total connectivity, we close the invisible gaps between corporate security and personal life. From yacht network hardening to SMB IT defence — discretion at every scale.</p>
-  <p class="hero-sub" data-lang="hu">A teljes összekötöttség korában lezárjuk a vállalati biztonság és a magánélet közötti láthatatlan réseket. Kis cégektől privát vagyonkezelőkig — diszkréció minden méretben.</p>
-
-  <div class="hero-ctas" data-lang="en">
-    <a href="#contact" class="btn-primary">Request Consultation</a>
-    <a href="#services" class="btn-secondary">Explore Services</a>
-  </div>
-  <div class="hero-ctas" data-lang="hu">
-    <a href="#contact" class="btn-primary">Konzultáció kérése</a>
-    <a href="#services" class="btn-secondary">Szolgáltatások</a>
+  <div id="statusBar" class="status-bar">
+    <span class="status-dot"></span>
+    <span id="statusText"></span>
   </div>
 
-  <div class="hero-stats" data-lang="en">
-    <div><div class="stat-num">24/7</div><div class="stat-label">Monitoring</div></div>
-    <div><div class="stat-num">100%</div><div class="stat-label">Discretion</div></div>
-  </div>
-  <div class="hero-stats" data-lang="hu">
-    <div><div class="stat-num">24/7</div><div class="stat-label">Monitoring</div></div>
-    <div><div class="stat-num">100%</div><div class="stat-label">Diszkréció</div></div>
-  </div>
-</div>
+  <nav id="nav">
+    <a href="#hero" class="nav-logo" aria-label="SDD Informatika">
+      <svg viewBox="0 0 220 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M8 34 C8 38 11 41 16 41 L28 41 C33 41 36 38 36 34 C36 30 33 27 28 27 L16 27 C11 27 8 24 8 20 C8 16 11 13 16 13 L28 13 C33 13 36 16 36 20" stroke="#3d4f63" stroke-width="4" stroke-linecap="round" fill="none"/>
+        <path d="M43 13 L43 41 M43 13 L52 13 C60 13 65 18 65 27 C65 36 60 41 52 41 L43 41" stroke="#3d4f63" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <path d="M72 13 L72 41 M72 13 L81 13 C89 13 94 18 94 27 C94 36 89 41 81 41 L72 41" stroke="#4a6275" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <line x1="102" y1="10" x2="102" y2="42" stroke="#cdd3db" stroke-width="1.2"/>
+        <g class="logo-text-group">
+          <text x="112" y="33" font-family="Inter, sans-serif" font-size="22" font-weight="600" letter-spacing="4" fill="#3d4f63">SDD</text>
+          <text x="113" y="44" font-family="Inter, sans-serif" font-size="8.5" font-weight="400" letter-spacing="5" fill="#9aa3ae">INFORMATIKA</text>
+        </g>
+      </svg>
+    </a>
+    <ul class="nav-links-desktop">
+      <li><a href="#services">Szolgáltatások</a></li>
+      <li><a href="#process">Folyamat</a></li>
+      <li><a href="#why">Miért mi?</a></li>
+      <li><a href="#contact" class="nav-cta-btn">Kapcsolat</a></li>
+    </ul>
+    <button class="hamburger" id="ham" aria-label="Menü">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
 
-<!-- ═══ SEGMENT STRIP — EN ═══ -->
-<div class="segment-strip" data-lang="en">
-  <div class="segment" onclick="document.getElementById('services').scrollIntoView({behavior:'smooth'})">
-    <div class="seg-icon">Enterprise & Private Wealth</div>
-    <h3>Premium Security</h3>
-    <p>Full-scope protection for Family Offices, UHNWIs, residences, yachts, and aircraft. Intelligence-grade infrastructure hardening with absolute discretion.</p>
-  </div>
-  <div class="segment" onclick="document.getElementById('smb').scrollIntoView({behavior:'smooth'})">
-    <div class="seg-icon">SMBs & Entrepreneurs</div>
-    <h3>Business Security</h3>
-    <p>Practical, affordable cybersecurity for small and medium businesses. NIS2 compliance, network protection, IT maintenance — clear communication, reliable execution.</p>
-  </div>
-</div>
-
-<!-- ═══ SEGMENT STRIP — HU ═══ -->
-<div class="segment-strip" data-lang="hu">
-  <div class="segment" onclick="document.getElementById('services').scrollIntoView({behavior:'smooth'})">
-    <div class="seg-icon">Vállalatok & Magánvagyon</div>
-    <h3>Prémium Biztonság</h3>
-    <p>Teljes körű védelem Family Office-oknak, vagyonos magánszemélyeknek, yacht-oknak és magánrepülőknek. Hírszerzési szintű infrastruktúra-megerősítés, teljes diszkrécióval.</p>
-  </div>
-  <div class="segment" onclick="document.getElementById('smb').scrollIntoView({behavior:'smooth'})">
-    <div class="seg-icon">KKV-k & Vállalkozók</div>
-    <h3>Üzleti Biztonság</h3>
-    <p>Praktikus, megfizethető kiberbiztonság kis- és középvállalkozásoknak. NIS2-megfelelőség, hálózatvédelem, IT-karbantartás — érthetően, megbízhatóan.</p>
-  </div>
-</div>
-
-<!-- ═══ PREMIUM SERVICES — EN ═══ -->
-<section id="services">
-  <div class="section-label" data-lang="en">Core Services — Premium</div>
-  <div class="section-label" data-lang="hu">Prémium Szolgáltatások</div>
-
-  <h2 class="section-title" data-lang="en">Engineered for those who demand <em>absolute</em> control.</h2>
-  <h2 class="section-title" data-lang="hu">Azoknak tervezve, akik <em>teljes</em> kontrollt igényelnek.</h2>
-
-  <div class="cards-grid" data-lang="en">
-    <div class="card" data-num="01">
-      <div class="card-tag">Threat Assessment</div>
-      <h4>Network Security Audit</h4>
-      <p>Full-scope evaluation of your private network — residences, yachts, aircraft, Family Office environments. Every attack surface mapped before a threat actor reaches it.</p>
-    </div>
-    <div class="card" data-num="02">
-      <div class="card-tag">Active Detection</div>
-      <h4>Honeypoint Monitoring</h4>
-      <p>Decoy systems and intelligence tripwires deployed inside your infrastructure. Real-time detection and attribution of reconnaissance attempts before they become breaches.</p>
-    </div>
-    <div class="card" data-num="03">
-      <div class="card-tag">Architecture</div>
-      <h4>Infrastructure Hardening</h4>
-      <p>End-to-end fortification of digital environments — from yacht network architecture to global OSINT exposure audits. Private intelligence standards, applied.</p>
-    </div>
-    <div class="card" data-num="04">
-      <div class="card-tag">Intelligence</div>
-      <h4>OSINT Audit</h4>
-      <p>We map every trace of your digital footprint accessible from open sources. Personal data, leaked credentials, corporate exposure — identified and remediated.</p>
-    </div>
-    <div class="card" data-num="05">
-      <div class="card-tag">Continuity</div>
-      <h4>24/7 Sovereign Access</h4>
-      <p>Round-the-clock availability ensuring your digital legacy remains protected across all jurisdictions, time zones, and threat landscapes.</p>
-    </div>
-    <div class="card" data-num="06">
-      <div class="card-tag">Bespoke</div>
-      <h4>Personalised Risk Profiling</h4>
-      <p>No template solutions. Every engagement built from the ground up — we design protection strategies unique to your risk environment and asset profile.</p>
-    </div>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#services" class="menu-link">Szolgáltatások</a>
+    <a href="#process" class="menu-link">Folyamat</a>
+    <a href="#why" class="menu-link">Miért mi?</a>
+    <a href="#contact" class="menu-link">Kapcsolat</a>
+    <a href="#contact" class="menu-cta menu-link">Ajánlatkérés</a>
   </div>
 
-  <div class="cards-grid" data-lang="hu">
-    <div class="card" data-num="01">
-      <div class="card-tag">Fenyegetéselemzés</div>
-      <h4>Hálózatbiztonsági Audit</h4>
-      <p>Teljes körű felmérés privát hálózatokhoz — rezidenciák, yacht-ok, magánrepülők, Family Office-ok. Minden támadási felület feltérképezve, mielőtt fenyegetés éri.</p>
+  <section id="hero">
+    <div class="hero-image-wrap">
+      <div class="hero-illustration">
+        <div class="hi-grid"></div>
+        <div class="hi-watermark">SDD</div>
+        <div class="hi-circle"></div>
+        <div class="hi-circle"></div>
+        <div class="hi-circle"></div>
+        <div class="hi-dot"></div>
+        <div class="hi-dot"></div>
+        <div class="hi-dot"></div>
+        <div class="hi-line"></div>
+        <div class="hi-line"></div>
+      </div>
+      <div class="hero-badge">Prémium IT Megoldások</div>
     </div>
-    <div class="card" data-num="02">
-      <div class="card-tag">Aktív Detektálás</div>
-      <h4>Honeypoint Monitoring</h4>
-      <p>Csali rendszerek és hírszerzési csapdák telepítése infrastruktúrájába. Valós idejű észlelés és felderítési kísérletek attribúciója, mielőtt incidenssé válnának.</p>
-    </div>
-    <div class="card" data-num="03">
-      <div class="card-tag">Architektúra</div>
-      <h4>Infrastruktúra Megerősítés</h4>
-      <p>Végponttól végpontig tartó digitális erődítés — yacht hálózati architektúrától globális OSINT kitettség-audotig. Magán hírszerzési szint, alkalmazva.</p>
-    </div>
-    <div class="card" data-num="04">
-      <div class="card-tag">Hírszerzés</div>
-      <h4>OSINT Audit</h4>
-      <p>Feltérképezzük digitális lábnyomának minden, nyílt forrásból elérhető nyomát. Személyes adatok, kiszivárgott belépési adatok, vállalati kitettség — azonosítva és orvosolva.</p>
-    </div>
-    <div class="card" data-num="05">
-      <div class="card-tag">Folytonosság</div>
-      <h4>24/7 Elérhetőség</h4>
-      <p>Éjjel-nappali rendelkezésre állás, amely biztosítja digitális öröksége védelmét minden joghatóságban, időzónában és fenyegetési környezetben.</p>
-    </div>
-    <div class="card" data-num="06">
-      <div class="card-tag">Testre Szabott</div>
-      <h4>Személyre Szabott Kockázati Profil</h4>
-      <p>Nincs sablonmegoldás. Minden megbízatást a nulláról építünk fel — az Ön kockázati környezetére és vagyonprofiljára egyedi védelmi stratégiát tervezünk.</p>
-    </div>
-  </div>
-</section>
-
-<!-- ═══ PHILOSOPHY ═══ -->
-<section class="alt">
-  <div class="section-label" data-lang="en">Our Philosophy</div>
-  <div class="section-label" data-lang="hu">Filozófiánk</div>
-
-  <div class="philosophy-grid" data-lang="en">
-    <div class="philosophy-text">
-      <h2 class="section-title">Absolute Discretion,<br><em>Without Compromise.</em></h2>
-      <p>In the digital world, information is the most valuable asset. At Sovereign Defense, we understand that your private sphere and business secrets are not merely data — they represent your future.</p>
-      <p>Our services have been developed exclusively for those for whom conventional security solutions are no longer sufficient. We do not simply protect systems. We safeguard your peace of mind, under the strictest confidence.</p>
-      <p>Every engagement is conducted with the discretion expected at the highest levels of private wealth management — and the technical depth that only comes from genuine expertise in offensive security.</p>
-    </div>
-    <div>
-      <div class="quote-block">
-        <blockquote>"We do not simply protect systems. We safeguard your peace of mind."</blockquote>
-        <div class="quote-cite">Sovereign Digital Defense — Core Principle</div>
+    <div class="hero-text">
+      <div class="hero-eyebrow">SDD Informatika</div>
+      <h1>Technológia,<br>ami <strong>működik.</strong></h1>
+      <p class="hero-sub">Webfejlesztéstől az adatmentésen át az automatizálásig — megbízható IT-partner vállalkozások és magánszemélyek számára.</p>
+      <div class="hero-actions">
+        <a href="#services" class="btn-dark">Szolgáltatások</a>
+        <a href="#contact" class="btn-outline-dark">Kapcsolatfelvétel</a>
+      </div>
+      <div class="hero-stats">
+        <div>
+          <div class="hs-num">100+</div>
+          <div class="hs-label">Megoldott projekt</div>
+        </div>
+        <div>
+          <div class="hs-num">24/7</div>
+          <div class="hs-label">Elérhetőség</div>
+        </div>
+        <div>
+          <div class="hs-num">100%</div>
+          <div class="hs-label">Titoktartás</div>
+        </div>
       </div>
     </div>
-  </div>
+  </section>
 
-  <div class="philosophy-grid" data-lang="hu">
-    <div class="philosophy-text">
-      <h2 class="section-title">Teljes Diszkréció,<br><em>Kompromisszum Nélkül.</em></h2>
-      <p>A digitális világban az információ a legértékesebb eszköz. A Sovereign Defense-nél megértjük, hogy privát szférája és üzleti titkai nem csupán adatok — a jövőjét képviselik.</p>
-      <p>Szolgáltatásainkat kifejezetten azoknak fejlesztettük ki, akik számára a hagyományos biztonsági megoldások már nem elegendők. Nem csupán rendszereket védünk. Lelki nyugalmát óvjuk, a legszigorúbb titoktartás mellett.</p>
-      <p>Minden megbízatást a privát vagyonkezelés legmagasabb szintjén elvárt diszkrécióval végzünk — és azzal a technikai mélységgel, amely csak az offenzív biztonságban szerzett valódi szakértelemből fakad.</p>
+  <section id="services">
+    <div class="services-header reveal">
+      <div class="section-tag">Amit kínálunk</div>
+      <h2 class="section-title">Teljes körű IT-szolgáltatások</h2>
+      <p class="section-sub">Minden IT-kihívásra megoldás — a tervezéstől az üzemeltetésig.</p>
     </div>
-    <div>
-      <div class="quote-block">
-        <blockquote>„Nem csupán rendszereket védünk. Lelki nyugalmát óvjuk."</blockquote>
-        <div class="quote-cite">Sovereign Digital Defense — Alapelv</div>
+    <div class="service-list">
+      <div class="service-item reveal">
+        <div class="si-num">01</div>
+        <div class="si-body">
+          <h3>Weboldalkészítés</h3>
+          <p>Modern, reszponzív weboldalak és webalkalmazások – frontend és backend egyaránt.</p>
+          <span class="si-tag">Frontend · Backend</span>
+        </div>
+        <div class="si-arrow">→</div>
+      </div>
+      <div class="service-item reveal">
+        <div class="si-num">02</div>
+        <div class="si-body">
+          <h3>Adatmentés & Visszaállítás</h3>
+          <p>Megbízható backup-stratégiák, felhőalapú és helyi megoldások. Elveszett adatok visszaállítása.</p>
+          <span class="si-tag">Backup · Recovery</span>
+        </div>
+        <div class="si-arrow">→</div>
+      </div>
+      <div class="service-item reveal">
+        <div class="si-num">03</div>
+        <div class="si-body">
+          <h3>Windows Rendszerek</h3>
+          <p>Telepítés, karbantartás, hibaelhárítás és optimalizálás – otthoni és üzleti környezetekben.</p>
+          <span class="si-tag">Rendszergazda</span>
+        </div>
+        <div class="si-arrow">→</div>
+      </div>
+      <div class="service-item reveal">
+        <div class="si-num">04</div>
+        <div class="si-body">
+          <h3>Linux Adminisztráció</h3>
+          <p>Szerver-telepítés, konfigurálás, biztonsági hardening és folyamatos üzemeltetés.</p>
+          <span class="si-tag">Server · Biztonság</span>
+        </div>
+        <div class="si-arrow">→</div>
+      </div>
+      <div class="service-item reveal">
+        <div class="si-num">05</div>
+        <div class="si-body">
+          <h3>Hardver & Szoftver</h3>
+          <p>Számítógépek összerakása, bővítése, javítása. Szoftverek telepítése és konfigurálása.</p>
+          <span class="si-tag">Hardver · Support</span>
+        </div>
+        <div class="si-arrow">→</div>
+      </div>
+      <div class="service-item reveal">
+        <div class="si-num">06</div>
+        <div class="si-body">
+          <h3>Automatizálás</h3>
+          <p>Ismétlődő feladatok automatizálása szkriptekkel és eszközökkel – időt és pénzt spórol.</p>
+          <span class="si-tag">Scripting · DevOps</span>
+        </div>
+        <div class="si-arrow">→</div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- ═══ VAULT ═══ -->
-<section>
-  <div class="vault-block" data-lang="en">
-    <div class="section-label">Restricted Access</div>
-    <h3>Sovereign Vault System</h3>
-    <p>A closed, self-sustaining digital environment engineered to withstand the highest-tier threat actors. Combining ethical hacking expertise with industrial-grade encryption — cryptographic asset storage, secure communication channels, critical network infrastructure. Strictly limited clientele, by referral only.</p>
-    <a href="#contact" class="btn-primary">Request Access</a>
-  </div>
-  <div class="vault-block" data-lang="hu">
-    <div class="section-label">Korlátozott Hozzáférés</div>
-    <h3>Sovereign Vault System</h3>
-    <p>Zárt, önfenntartó digitális környezet, amelyet a legmagasabb szintű fenyegetési szereplők ellen terveztek. Etikus hackelési szakértelem és ipari szintű titkosítás kombinációja — kriptográfiai eszközök tárolása, biztonságos kommunikációs csatornák, kritikus hálózati infrastruktúra. Szigorúan korlátozott ügyfélkör, csak ajánlás útján.</p>
-    <a href="#contact" class="btn-primary">Hozzáférés Kérése</a>
-  </div>
-</section>
+  <section id="process">
+    <div class="reveal">
+      <div class="section-tag">Hogyan dolgozunk</div>
+      <h2 class="section-title">Átlátható folyamat,<br>kiszámítható eredmény</h2>
+    </div>
+    <div class="process-grid">
+      <div class="process-step reveal">
+        <div class="ps-num">01</div>
+        <div class="ps-body"><h4>Igényfelmérés</h4><p>Megértjük a célodat, feltérképezzük a helyzetet és meghatározzuk a feladat hatókörét.</p></div>
+      </div>
+      <div class="process-step reveal">
+        <div class="ps-num">02</div>
+        <div class="ps-body"><h4>Ajánlat & Tervezés</h4><p>Részletes ajánlatot és ütemtervet készítünk – meglepetések nélkül.</p></div>
+      </div>
+      <div class="process-step reveal">
+        <div class="ps-num">03</div>
+        <div class="ps-body"><h4>Megvalósítás</h4><p>Elvégezzük a munkát, folyamatosan kommunikálva az előrehaladásról.</p></div>
+      </div>
+      <div class="process-step reveal">
+        <div class="ps-num">04</div>
+        <div class="ps-body"><h4>Átadás & Támogatás</h4><p>Átadás után is elérhetők vagyunk – garanciával és utókövetéssel.</p></div>
+      </div>
+    </div>
+  </section>
 
-<!-- ═══ SMB / LOCAL SERVICES — EN ═══ -->
-<section class="alt" id="smb">
-  <div class="section-label" data-lang="en">For SMBs & Entrepreneurs</div>
-  <div class="section-label" data-lang="hu">KKV-knak & Vállalkozóknak</div>
+  <section id="why">
+    <div class="reveal">
+      <div class="section-tag">Miért az SDD?</div>
+      <h2 class="section-title">Amit másoktól<br>nem kapsz meg</h2>
+    </div>
+    <div class="why-grid">
+      <div class="why-item reveal"><div class="wi-icon">⚡</div><h4>Gyors reagálás</h4><p>Sürgős esetben is számíthatsz ránk.</p></div>
+      <div class="why-item reveal"><div class="wi-icon">🎯</div><h4>Precizitás</h4><p>Minden feladatot alaposan, hibátlanul végzünk.</p></div>
+      <div class="why-item reveal"><div class="wi-icon">🔒</div><h4>Adatbiztonság</h4><p>Titoktartási megállapodással dolgozunk.</p></div>
+      <div class="why-item reveal"><div class="wi-icon">💡</div><h4>Komplex szemlélet</h4><p>Nem csak a tünetet, a gyökérokot oldjuk meg.</p></div>
+      <div class="why-item reveal"><div class="wi-icon">🤝</div><h4>Személyes kapcsolat</h4><p>Közvetlen, emberi kommunikáció mindig.</p></div>
+      <div class="why-item reveal"><div class="wi-icon">📈</div><h4>Hosszú távú szemlélet</h4><p>Megoldásaink veled nőnek, nem avulnak el.</p></div>
+    </div>
+  </section>
 
-  <h2 class="section-title" data-lang="en">Reliable IT Solutions for <em>Every Business.</em></h2>
-  <h2 class="section-title" data-lang="hu">Megbízható IT-megoldások <em>minden vállalkozásnak.</em></h2>
-
-  <p style="color:var(--silver);max-width:600px;margin-bottom:48px;font-size:12px;line-height:1.9" data-lang="en">You don't have to be a Fortune 500 company to deserve professional cybersecurity. We bring the same rigour and expertise to small and medium enterprises — adapted to your scale, budget, and operational reality.</p>
-  <p style="color:var(--silver);max-width:600px;margin-bottom:48px;font-size:12px;line-height:1.9" data-lang="hu">Nem kell Fortune 500-as cégnek lenni ahhoz, hogy professzionális kiberbiztonsága legyen. Ugyanazt a szigort és szakértelmet hozzuk a kis- és középvállalkozásokhoz is — az Ön léptékéhez, költségvetéséhez és működési valóságához igazítva.</p>
-
-  <div class="local-list" data-lang="en">
-    <div class="local-item">
-      <h5><span class="icon">⟳</span> Data Recovery</h5>
-      <p>Recovery of accidentally deleted files, folders, USB drives, external disks, or storage media no longer recognised by your system.</p>
-    </div>
-    <div class="local-item">
-      <h5><span class="icon">⊞</span> Windows Maintenance</h5>
-      <p>Tuning slow or unresponsive Windows machines. Updates, clean-up, baseline configuration — explained clearly and resolved quickly.</p>
-    </div>
-    <div class="local-item">
-      <h5><span class="icon">⌥</span> Linux Systems</h5>
-      <p>Stable Linux environments for SMBs. Installation, configuration, and maintenance — without unnecessary complexity.</p>
-    </div>
-    <div class="local-item">
-      <h5><span class="icon">⬡</span> VPN & Network Security</h5>
-      <p>Encrypted connections for home or office networks. Secure remote access, configured simply and maintained reliably.</p>
-    </div>
-    <div class="local-item" style="border-color:rgba(192,57,43,0.3)">
-      <h5><span class="icon" style="color:var(--red)">⚑</span> NIS2 Compliance</h5>
-      <p>For businesses within scope of the EU NIS2 Directive — a clear, actionable roadmap to understand and fulfil your obligations.</p>
-    </div>
-    <div class="local-item">
-      <h5><span class="icon">⌘</span> Custom Software & Automation</h5>
-      <p>Automating repetitive tasks. From lightweight Python scripts to complex workflow integrations — time saved is money earned.</p>
-    </div>
+  <div class="cta-strip reveal">
+    <h2>Készen állsz az első lépésre?</h2>
+    <p>Ingyenes konzultációval indítunk minden projektet.</p>
+    <a href="#contact" class="btn-white">Kapcsolatfelvétel →</a>
   </div>
 
-  <div class="local-list" data-lang="hu">
-    <div class="local-item">
-      <h5><span class="icon">⟳</span> Adatmentés</h5>
-      <p>Véletlenül törölt fájlok, mappák, USB meghajtók, külső lemezek vagy a rendszer által nem felismert tárolóeszközök visszaállítása.</p>
+  <section id="contact">
+    <div class="contact-grid">
+      <div>
+        <div class="section-tag reveal">Kapcsolat</div>
+        <h2 class="section-title reveal">Írj nekünk,<br>válaszolunk.</h2>
+        <p class="section-sub reveal">Általában 24 órán belül visszajelzünk minden megkeresésre.</p>
+        <div class="contact-info-list reveal">
+          <div class="ci-row">
+            <div class="ci-dot">📧</div>
+            <div class="ci-text"><div class="lbl">Email</div><div class="val">sdd.ops@proton.me</div></div>
+          </div>
+          <div class="ci-row">
+            <div class="ci-dot">📞</div>
+            <div class="ci-text"><div class="lbl">Telefon</div><div class="val">+36 70 319 5267</div></div>
+          </div>
+          <div class="ci-row">
+            <div class="ci-dot">📍</div>
+            <div class="ci-text"><div class="lbl">Helyszín</div><div class="val">Nagykanizsa</div></div>
+          </div>
+          <div class="ci-row">
+            <div class="ci-dot">🚗</div>
+            <div class="ci-text"><div class="lbl">Kiszállás</div><div class="val">Nagykanizsa és 25 km-es körzetében házhoz megyünk, hozzuk-visszük a gépet</div></div>
+          </div>
+          <div class="ci-row">
+            <div class="ci-dot">🕐</div>
+            <div class="ci-text"><div class="lbl">Nyitvatartás</div><div class="val">Előre egyeztetett időpontban</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="contact-form reveal">
+        <div class="cf-row">
+          <div class="form-field"><label>Név</label><input type="text" id="f-name" placeholder="Kovács János" /></div>
+          <div class="form-field"><label>Email</label><input type="email" id="f-email" placeholder="sajat@email.hu" /></div>
+        </div>
+        <div class="form-field"><label>Telefon (opcionális)</label><input type="tel" id="f-tel" placeholder="+36 30 ..." /></div>
+        <div class="form-field">
+          <label>Szolgáltatás</label>
+          <select id="f-service">
+            <option value="">Válassz szolgáltatást…</option>
+            <option>Weboldalkészítés</option>
+            <option>Adatmentés &amp; Visszaállítás</option>
+            <option>Windows / Linux Rendszer</option>
+            <option>Hardver &amp; Szoftver</option>
+            <option>Backend / Frontend fejlesztés</option>
+            <option>Automatizálás</option>
+            <option>Egyéb</option>
+          </select>
+        </div>
+        <div class="form-field"><label>Üzenet</label><textarea id="f-msg" placeholder="Írd le röviden, miben segíthetünk…"></textarea></div>
+        <button class="btn-dark" id="send-btn" style="width:100%;text-align:center;"> Üzenet küldése </button>
+        <p style="font-size:.75rem;color:var(--muted);margin-top:.4rem;"> A gombra kattintva megnyílik a levelezőprogramod, és a levél az <strong>sdd.ops@proton.me</strong> címre kerül elküldésre. </p>
+      </div>
     </div>
-    <div class="local-item">
-      <h5><span class="icon">⊞</span> Windows Karbantartás</h5>
-      <p>Lassú vagy nem reagáló Windows gépek hangolása. Frissítések, tisztítás, alapkonfiguráció — érthetően elmagyarázva, gyorsan megoldva.</p>
-    </div>
-    <div class="local-item">
-      <h5><span class="icon">⌥</span> Linux Rendszerek</h5>
-      <p>Stabil Linux környezetek KKV-k számára. Telepítés, konfiguráció és karbantartás — felesleges bonyodalmak nélkül.</p>
-    </div>
-    <div class="local-item">
-      <h5><span class="icon">⬡</span> VPN & Hálózatbiztonság</h5>
-      <p>Titkosított kapcsolatok otthoni vagy irodai hálózatokhoz. Biztonságos távelérés, egyszerűen konfigurálva, megbízhatóan karbantartva.</p>
-    </div>
-    <div class="local-item" style="border-color:rgba(192,57,43,0.3)">
-      <h5><span class="icon" style="color:var(--red)">⚑</span> NIS2 Megfelelőség</h5>
-      <p>Az EU NIS2 irányelv hatálya alá eső vállalkozások számára — egyértelmű, cselekvőképes útiterv kötelezettségeik megértéséhez és teljesítéséhez.</p>
-    </div>
-    <div class="local-item">
-      <h5><span class="icon">⌘</span> Egyedi Szoftver & Automatizálás</h5>
-      <p>Ismétlődő feladatok automatizálása. Könnyű Python szkriptektől összetett munkafolyamat-integrációkig — a megtakarított idő pénzt jelent.</p>
-    </div>
-  </div>
-</section>
+  </section>
 
-<!-- ═══ NIS2 BAND ═══ -->
-<div class="compliance-band" data-lang="en">
-  <div class="comp-badge">NIS2 — EU Directive</div>
-  <div class="comp-text">The EU NIS2 Directive significantly expands the scope of cybersecurity obligations for businesses operating in Europe. Many SMBs are now in scope. We help you navigate compliance without the corporate consulting overhead.</div>
-  <a href="#contact" class="btn-secondary" style="flex-shrink:0">Get NIS2 Assessment</a>
-</div>
-<div class="compliance-band" data-lang="hu">
-  <div class="comp-badge">NIS2 — EU Irányelv</div>
-  <div class="comp-text">Az EU NIS2 irányelv jelentősen kiterjeszti az Európában működő vállalkozások kiberbiztonsági kötelezettségeit. Sok KKV most már a hatálya alá esik. Segítünk eligazodni a megfelelőségben, nagyvállalati tanácsadói rezsi nélkül.</div>
-  <a href="#contact" class="btn-secondary" style="flex-shrink:0">NIS2 Felmérés Kérése</a>
-</div>
-
-<!-- ═══ CONTACT ═══ -->
-<section id="contact">
-  <div class="section-label" data-lang="en">Begin Your Engagement</div>
-  <div class="section-label" data-lang="hu">Vegye Fel Velünk a Kapcsolatot</div>
-
-  <div class="contact-block" data-lang="en">
-    <div class="contact-info">
-      <h2>Let's discuss your <em>security posture.</em></h2>
-      <p>Whether you require enterprise-grade privacy infrastructure or straightforward IT support for your business — we respond with the same level of professionalism. Reach out directly via encrypted email.</p>
-      <div class="contact-detail"><span>◈</span><span>Encrypted communications preferred</span></div>
-      <div class="contact-detail"><span>◎</span><span>All engagements under strict NDA</span></div>
-      <div class="contact-detail"><span>⟳</span><span>Response within 24 hours</span></div>
+  <footer>
+    <div class="footer-logo-wrap">
+      <svg viewBox="0 0 220 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M8 34 C8 38 11 41 16 41 L28 41 C33 41 36 38 36 34 C36 30 33 27 28 27 L16 27 C11 27 8 24 8 20 C8 16 11 13 16 13 L28 13 C33 13 36 16 36 20" stroke="#3d4f63" stroke-width="4" stroke-linecap="round" fill="none"/>
+        <path d="M43 13 L43 41 M43 13 L52 13 C60 13 65 18 65 27 C65 36 60 41 52 41 L43 41" stroke="#3d4f63" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <path d="M72 13 L72 41 M72 13 L81 13 C89 13 94 18 94 27 C94 36 89 41 81 41 L72 41" stroke="#4a6275" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <line x1="102" y1="10" x2="102" y2="42" stroke="#cdd3db" stroke-width="1.2"/>
+        <g class="logo-text-group">
+          <text x="112" y="33" font-family="Inter, sans-serif" font-size="22" font-weight="600" letter-spacing="4" fill="#3d4f63">SDD</text>
+        </g>
+      </svg>
     </div>
-    <div class="contact-email-block">
-      <div style="font-size:10px;letter-spacing:0.25em;text-transform:uppercase;color:var(--silver)">Direct Contact</div>
-      <a href="mailto:sdd.ops@proton.me" class="big-email">sdd.ops@proton.me</a>
-      <p style="color:var(--silver);font-size:11px;line-height:1.8">We use ProtonMail for end-to-end encrypted communication. You are welcome to use PGP for maximum confidentiality.</p>
-      <a href="mailto:sdd.ops@proton.me" class="btn-primary" style="align-self:flex-start">Send Email</a>
+    <div class="footer-copy">&copy; 2026 SDD Informatika. Minden jog fenntartva.</div>
+    <div class="footer-links">
+      <a href="#services">Szolgáltatások</a>
+      <a href="#process">Folyamat</a>
+      <a href="#contact">Kapcsolat</a>
     </div>
-  </div>
+  </footer>
 
-  <div class="contact-block" data-lang="hu">
-    <div class="contact-info">
-      <h2>Beszéljük meg az Ön <em>biztonsági helyzetét.</em></h2>
-      <p>Akár vállalati szintű adatvédelmi infrastruktúrát, akár egyszerű IT-támogatást igényel vállalkozásához — ugyanolyan professzionalizmussal válaszolunk. Írjon nekünk közvetlenül titkosított emailen.</p>
-      <div class="contact-detail"><span>◈</span><span>Titkosított kommunikáció előnyben részesítve</span></div>
-      <div class="contact-detail"><span>◎</span><span>Minden megbízatás szigorú titoktartási megállapodással</span></div>
-      <div class="contact-detail"><span>⟳</span><span>Válasz 24 órán belül</span></div>
-    </div>
-    <div class="contact-email-block">
-      <div style="font-size:10px;letter-spacing:0.25em;text-transform:uppercase;color:var(--silver)">Közvetlen Elérhetőség</div>
-      <a href="mailto:sdd.ops@proton.me" class="big-email">sdd.ops@proton.me</a>
-      <p style="color:var(--silver);font-size:11px;line-height:1.8">ProtonMail-t használunk végpontok közötti titkosított kommunikációhoz. PGP-t is szívesen fogadunk a maximális bizalmasság érdekében.</p>
-      <a href="mailto:sdd.ops@proton.me" class="btn-primary" style="align-self:flex-start">Email Küldése</a>
-    </div>
-  </div>
-</section>
-
-<!-- ═══ FOOTER ═══ -->
-<footer>
-  <div class="footer-logo">SOVEREIGN DIGITAL DEFENSE</div>
-  <div class="footer-copy" data-lang="en">© 2026 Sovereign Digital Defense — All rights reserved.</div>
-  <div class="footer-copy" data-lang="hu">© 2026 Sovereign Digital Defense — Minden jog fenntartva.</div>
-  <div class="footer-links">
-    <a href="mailto:sdd.ops@proton.me">sdd.ops@proton.me</a>
-  </div>
-</footer>
-
-<script>
-  function setLang(lang) {
-    document.body.classList.toggle('lang-hu', lang === 'hu');
-    document.querySelectorAll('.lang-btn').forEach(btn => {
-      btn.classList.toggle('active', btn.textContent.toLowerCase() === lang);
+  <script>
+    // Mobile menu toggle
+    const ham = document.getElementById('ham');
+    const mobileMenu = document.getElementById('mobileMenu');
+    ham.addEventListener('click', () => {
+      ham.classList.toggle('open');
+      mobileMenu.classList.toggle('open');
     });
-    document.documentElement.lang = lang;
-  }
 
-  // Smooth scroll offset for fixed nav
-  document.querySelectorAll('a[href^="#"]').forEach(a => {
-    a.addEventListener('click', e => {
-      const id = a.getAttribute('href').slice(1);
-      if (!id) return;
-      e.preventDefault();
-      const el = document.getElementById(id);
-      if (el) window.scrollTo({ top: el.offsetTop - 80, behavior: 'smooth' });
+    // Close mobile menu on click
+    document.querySelectorAll('.menu-link').forEach(link => {
+      link.addEventListener('click', () => {
+        ham.classList.remove('open');
+        mobileMenu.classList.remove('open');
+      });
     });
-  });
-</script>
+
+    // Reveal on scroll
+    const reveals = document.querySelectorAll('.reveal');
+    const revealOnScroll = () => {
+      const windowHeight = window.innerHeight;
+      reveals.forEach(el => {
+        const elementTop = el.getBoundingClientRect().top;
+        if (elementTop < windowHeight - 40) {
+          el.classList.add('visible');
+        }
+      });
+    };
+    window.addEventListener('scroll', revealOnScroll);
+    window.addEventListener('load', revealOnScroll);
+
+    // Business hours logic (9:00 - 17:00)
+    function updateStatus() {
+      const now = new Date();
+      const hrs = now.getHours();
+      const mins = now.getMinutes();
+      const totalMins = (hrs * 60) + mins;
+      const openMins  = 9 * 60;
+      const closeMins = 17 * 60;
+
+      const bar  = document.getElementById('statusBar');
+      const text = document.getElementById('statusText');
+      if (totalMins >= openMins && totalMins < closeMins) {
+        bar.className  = 'status-bar open';
+        text.textContent = 'Elérhető';
+      } else {
+        bar.className  = 'status-bar closed';
+        text.textContent = 'Zárva – írjon üzenetet, nyitás után válaszolunk';
+      }
+    }
+    updateStatus();
+    setInterval(updateStatus, 60000);
+
+    // Mailto handler
+    document.getElementById('send-btn').addEventListener('click', function() {
+      const name    = document.getElementById('f-name').value.trim();
+      const email   = document.getElementById('f-email').value.trim();
+      const tel     = document.getElementById('f-tel').value.trim();
+      const service = document.getElementById('f-service').value;
+      const msg     = document.getElementById('f-msg').value.trim();
+
+      if (!name || !email) {
+        alert('Kérlek add meg a nevedet és az email címedet!');
+        return;
+      }
+
+      const subject = encodeURIComponent('SDD Informatika – Megkeresés: ' + (service || 'Általános'));
+      const body = encodeURIComponent(
+        'Név: ' + name + '\n' +
+        'Email: ' + email + '\n' +
+        (tel ? 'Telefon: ' + tel + '\n' : '') +
+        (service ? 'Szolgáltatás: ' + service + '\n' : '') +
+        '\nÜzenet:\n' + msg
+      );
+
+      window.location.href = 'mailto:sdd.ops@proton.me?subject=' + subject + '&body=' + body;
+    });
+  </script>
 </body>
 </html>
